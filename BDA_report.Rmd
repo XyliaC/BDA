@@ -1,0 +1,93 @@
+---
+title: "BDA_report"
+author: "CX"
+date: "2019/5/18"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+  github_document: default
+  html_notebook:
+    highlight: monochrome
+    number_sections: yes
+    theme: united
+    toc: yes
+---
+
+# **团队概况**
+## **团队分工**
+```{r setup, message=FALSE,echo=FALSE}
+NAME <- c("曹霞","黄雅雯","赵玉娇")
+WORK <- c("1. 搜集有关“幸福感”的背景资料，包含幸福悖论、宗教、性别认同、住房等相关方面的背景  2. 主笔报告团队概况部分  3. 整理GitHub相关学习资料  4. 可视化分析教育、地域、社会认知等变量与主观幸福感的关系","1. 搜集有关“幸福感”的背景资料，包含政策、世界幸福感排名等相关资料  2. 主笔数据预处理部分  3. 可视化宗教信仰、生活方式、家庭状况等变量与主观幸福感的关系","1. 主笔问题背景部分  2. 搜集幸福感相关背景资料 3. 可视化身心健康、工作就业等变量与主观幸福感的关系")
+knitr::kable(
+  data.frame(NAME,WORK),
+  caption = "WORK DISTRIBUTION",
+  align = "l"
+)
+```
+
+## **成员特长**
+- 曹霞
+  - 擅长于搜集资料与数据可视化，机器学习、数学、统计学等相关领域均有知识储备，具有较好的分析能力
+- 黄雅雯
+  - 擅长于数学与计算机科学，机器学习、统计学等相关领域均有知识储备，具有较好的实践能力
+- 赵玉娇
+  - 擅长于统计学与数学，机器学习、计算机科学等相关领域均有知识储备，具有较好的思维能力
+  
+团队知识结构如下图所示：
+
+
+```{r ability, echo=FALSE}
+library(ggplot2)
+ability <- data.frame(collection=c(8,5,5),visualization=c(7,6,6),machine_learning=c(4,4,5),computer_science=c(6,7,6),statistic=c(6,5,7),math=c(4,6,6),row.names=c("曹霞","黄雅雯","赵玉娇"))
+#opar <- par(no.readonly = TRUE)
+#par(mai=c(5,4,6,8)+0.1)
+barplot(as.matrix(ability),col=cm.colors(5),names.arg=c("资料搜集","数据可视化","机器学习","计算机科学","统计学","数学"),legend=rownames(ability),args.legend=c(x=8,y=22.1),cex.names = 0.7,xlab="团队技能")
+
+
+```
+
+# **数据预处理**
+
+```{r read_data,message=FALSE}
+library(tidyverse)
+setwd("C:/Users/16401/Desktop/Happiness_forecast")
+data<-read.csv("happiness_train_clean.csv")
+for (i in seq_along(data))
+{
+  if(length(table(data[[i]]))<35)
+    data[[i]]<-factor(data[[i]])
+}
+data$id<-as.character(data$id)
+data$family_m<-as.integer(data$family_m)
+data$house<-as.integer(data$house)
+data$car<-as.integer(data$car)
+
+data[c("id","happiness","province","edu","equity","class","status_peer","status_3_before","view","inc_ability")]
+summary(data)
+```
+## **3 数据可视化**
+
+```{r province,message=FALSE}
+meanp <- as.vector(tapply(as.integer(data$happiness),data$province,mean))
+province <- sort(unique(data$province))
+happiness_meanp <- data.frame(province,meanp)
+
+ggplot(data = happiness_meanp,mapping=aes(x=province,y=meanp))+
+  #geom_point()+
+  geom_bar(stat = "identity",fill="steelblue",alpha=2/3)+
+  #scale_y_continuous(limits=c(min(meanp)-0.5,max(meanp)+0.5))
+  coord_flip()
+```
+
+```{r edu,message=FALSE}
+meane <- as.vector(tapply(as.integer(data$happiness),data$edu,mean))
+edu <- sort(unique(data$edu))
+happiness_meane <- data.frame(edu,meane)
+
+ggplot(data = happiness_meane,mapping=aes(x=edu,y=meane))+
+  geom_point()+
+  geom_bar(stat = "identity",fill="blue",alpha=2/3)+
+  #scale_y_continuous(limits=c(min(meane)-0.5,max(meane)+0.5))
+  coord_flip()
+```
